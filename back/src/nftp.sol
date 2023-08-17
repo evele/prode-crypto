@@ -61,7 +61,7 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         for (uint8 index = 0; index < _prediction.length; index++) {
             predictions[tokenId].push(_prediction[index]);
         }
-        _tokenIdTracker.increment();
+        _tokenIdCounter.increment();
         _setTokenURI(tokenId, uri);
     }
 
@@ -72,11 +72,11 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         require(_prediction.length == TOTAL_GAMES, "There should be a prediction for each game");
         require(msg.value == publicPrice, "Wrong, not exactly amount sent.");
         uint256 tokenId = _tokenIdCounter.current();
-        _safeMint(to, tokenId);
+        _safeMint(msg.sender, tokenId);
         for (uint8 index = 0; index < _prediction.length; index++) {
-            predictions[_tokenIdTracker.current()].push(_prediction[index]);
+            predictions[_tokenIdCounter.current()].push(_prediction[index]);
         }
-        _tokenIdTracker.increment();
+        _tokenIdCounter.increment();
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
