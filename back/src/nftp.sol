@@ -164,4 +164,29 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return positions;
     }
 
+    // -- points 
+    function calculatePoints(uint256 _tokenId, uint8 _index) public view returns (uint8) {
+        
+        require(games[predictions[_tokenId][_index].id].set == true, "The result for this gamem was not loaded yet");
+        uint8 points = abs (int8(7 - (calculateDiferencePoints( predictions[_tokenId][_index].result[0],games[predictions[_tokenId][_index].id].result[0]) + calculateDiferencePoints(predictions[_tokenId][_index].result[1], games[predictions[_tokenId][_index].id].result[1]))));
+        if (getLocalEmpateVisitante(predictions[_tokenId][_index].result[0],predictions[_tokenId][_index].result[1]) == getLocalEmpateVisitante(games[predictions[_tokenId][_index].id].result[0],games[predictions[_tokenId][_index].id].result[0])){
+            points += 2;
+        }
+    
+        return points;
+    }
+
+    function calculateDiferencePoints(uint8 _goalsP, uint8 _goalsR) public pure returns(uint8){
+        return abs(int8(_goalsR) - int8(_goalsP));
+    }
+
+    // function getLocalEmpateVisitante(uint8[2] memory _goals) public pure returns(uint8){
+    function getLocalEmpateVisitante(uint8 _goalsL, uint8 _goalsV) public pure returns(uint8){
+        return (_goalsL > _goalsV) ? LOCAL : (_goalsL == _goalsV) ? EMPATE : VISITANTE;
+    }
+
+    function abs(int8 x) public pure returns (uint8) {
+        return uint8(x >= 0 ? x : -x);
+    }
+
 }
