@@ -2,8 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import Card from '../components/Card.astro';
 
-import ReactCounter from '../components/Counter';
-import VueCounter from '../components/Counter.vue';
+
+import TableResult from '../components/ResumenNFT/ResumenNFT'
 ---
 
 <Layout title="Welcome to Astro.">
@@ -36,14 +36,13 @@ import VueCounter from '../components/Counter.vue';
 				</linearGradient>
 			</defs>
 		</svg>
-		<h1>Welcome to <span class="text-gradient">Astro</span></h1>
+		<h1>Welcome to <span class="text-gradient">PRODE DEFI</span></h1>
 		<p class="instructions">
 			To get started, open the directory <code>src/pages</code> in your project.<br />
 			<strong>Code Challenge:</strong> Tweak the "Welcome to Astro" message above.
 		</p>
-		<ReactCounter client:load/>
-		<VueCounter	client:load/>
-		<VueCounter	client:load/>
+		
+		<TableResult>
 		<ul role="list" class="link-card-grid">
 			<Card
 				href="https://docs.astro.build/"
