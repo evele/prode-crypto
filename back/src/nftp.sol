@@ -81,7 +81,7 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         _setTokenURI(tokenId, uri);
     }
 
-    function mintPublic(Game[] memory _prediction) public payable {
+    function mintPublic(Game[] memory _prediction, uint8[3] memory _winnerPrediction) public payable {
         // We cannot just use balanceOf to create the new tokenId because tokens
         // can be burned (destroyed), so we need a separate counter.
         require(mintEnabled,"Minting its not allowed");
@@ -92,6 +92,7 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         for (uint8 index = 0; index < _prediction.length; index++) {
             predictions[_tokenIdCounter.current()].push(_prediction[index]);
         }
+        winnersPredictions[tokenId] = _winnerPrediction;
         _tokenIdCounter.increment();
     }
 
@@ -158,6 +159,10 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return predictions[_tokenId];
     }
 
+    function getWinnerPrediction(uint256 _tokenId) public view returns (uint8[3] memory){
+        return winnersPredictions[_tokenId];
+    }
+
     // predictionIds ordered outside, but checking here if they are correct 
     function setPositions(uint256[] memory _predictionsIds, uint256[] memory _predictionsPoints) public onlyOwner returns(bool success){
         require(_predictionsIds.length >0);
@@ -172,8 +177,54 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return true; 
     }
 
+    function setWinners(uint8 _first, uint8 _second, uint8 _third) public onlyOwner returns (bool success){
+        require(_first>0 && _first < 33, "The first team set does not exist");
+        require(_second>0 && _second < 33, "The second team set does not exist");
+        require(_third>0 && _third < 33, "The firs third set does not exist");
+        require(_first != _second && _first != _third && _second != _third , "There can't be repeated teams");
+        winners = [_first, _second, _third];
+        return true;
+
+    }
+
     function getPositions() public view returns (uint256[] memory){
         return positions;
+    }
+
+    function calculatePredictionPoints(uint256 _tokenId, uint256 _limit) public view returns (uint256){
+        return calculateAllPredictionPoints(_tokenId, _limit) + calculateAllWinnerPoints(winnersPredictions[_tokenId][0],winnersPredictions[_tokenId][1],winnersPredictions[_tokenId][2]);
+    }
+
+    function calculateAllWinnerPoints(uint8 _first, uint8 _second, uint8 _third) public view returns(uint256){
+        uint8[3] memory memWinners = winners;
+        uint256 result;
+        if (_first == memWinners[0]){
+            result+= 19;
+        } else if (_first == memWinners[1] || _first == memWinners[2]) {
+            result+= 10;
+        }
+        if (_second == memWinners[1]){
+            result+= 16;
+        } else if (_second == memWinners[0] || _second == memWinners[2]) {
+            result+= 10;
+        }
+        if (_third == memWinners[2]){
+            result+= 14;
+        } else if (_third == memWinners[0] || _third == memWinners[1]) {
+            result+= 10;
+        }
+         
+        return result;
+    }
+
+    function calculateAllPredictionPoints(uint256 _tokenId, uint256 _limit) public view returns(uint256){
+       //  predictions[_tokenId]
+        uint256 result;
+        for (uint8 index = 0; index < TOTAL_GAMES && index < _limit; index++){
+            // result += calculatePoints(_predictions[index],games[_predictions[index].id]);
+            result += uint256(calculatePoints(_tokenId,index));
+        }
+        return result;
     }
 
     // -- points 
