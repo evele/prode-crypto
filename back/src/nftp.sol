@@ -116,4 +116,25 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
     {
         return super.supportsInterface(interfaceId);
     }
+
+    // setRound(1,[[1, 1, 2, [0,0],false],[2, 3, 4, [0,0],false],[3, 5, 6, [0,0],false],[4, 7, 8, [0,0],false]])
+    // initializa all in [0,0] 
+    function setGames(Game[] memory _games) public onlyOwner returns(bool success)  {
+        require(_games.length == TOTAL_GAMES );
+        uint8[24] memory ids;
+        for (uint8 index = 0; index < _games.length; index++) {
+            ids[index] = _games[index].id;
+            games[_games[index].id] = _games[index];
+        }
+        return true;
+    }
+
+    function setGameResult(uint8 _gameId, uint8 _team1Score, uint8 _team2Score) public onlyOwner returns (bool success) {
+        require(_gameId >0 && _gameId <=24, "The gane ID do not exist ");
+        games[_gameId].result[0] = _team1Score;
+        games[_gameId].result[1] = _team2Score;
+        games[_gameId].set = true;
+        return true;
+    }
+
 }
