@@ -1,0 +1,58 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+// TODO: first pozo iteration prizes distributed from our manager.., in the second we decided that the user will claim his own prize. Wiil use this for future references
+interface IERC20 {
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+}
+
+contract ProdePozo {
+    address public owner;
+    IERC20 public token;
+    mapping(address => uint256) public balances;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function");
+        _;
+    }
+
+    constructor(address _tokenAddress) {
+        owner = msg.sender;
+        token = IERC20(_tokenAddress);
+    }
+
+    function deposit(uint256 amount) external {
+        require(amount > 0, "Amount must be greater than 0");
+        require(token.transferFrom(msg.sender, address(this), amount), "Token transfer failed");
+        balances[msg.sender] += amount;
+    }
+
+    function payPrizes(address[] calldata winners, uint256[] calldata proportions) external onlyOwner {
+        require(winners.length == proportions.length, "Array lengths do not match");
+
+        uint256 totalPrize = token.balanceOf(address(this));
+        uint256 totalProportion = 0;
+
+        for (uint256 i = 0; i < proportions.length; i++) {
+            totalProportion += proportions[i];
+        }
+        require(totalProportion == 100, "Total proportion must be 100");
+
+        for (uint256 i = 0; i < winners.length; i++) {
+            address winner = winners[i];
+            uint256 proportion = proportions[i];
+
+            require(balances[winner] >= proportion, "Insufficient balance for winner");
+
+            uint256 prizeAmount = (proportion * totalPrize) / 100;
+            balances[winner] -= prizeAmount;
+            require(token.transfer(winner, prizeAmount), "Token transfer to winner failed");
+        }
+    }
+
+    function withdrawTokens(uint256 amount) external onlyOwner {
+        require(amount > 0, "Amount must be greater than 0");
+        require(token.transfer(owner, amount), "Token transfer failed");
+    }
+}
