@@ -21,6 +21,28 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return "prodero.com";
     }
 
+    bool mintEnabled;
+
+    uint8 immutable TOTAL_GAMES  = 24; 
+    uint8 immutable LOCAL = 0;
+    uint8 immutable EMPATE = 1;
+    uint8 immutable VISITANTE = 2;
+
+    uint256 public publicPrice = 1 ether;
+    
+    mapping (address => bool) allowList; // TODO: to use it in some promo
+
+    struct Game {
+        uint8 id; //will be here too, just to be easy to return (I think)
+        uint8 team1;
+        uint8 team2;
+        uint8[2] result;
+        bool set;
+    } 
+
+    mapping(uint8 => Game) public games;  // game_ids -> game
+
+
     function pause() public onlyOwner {
         _pause();
     }
@@ -29,11 +51,31 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         _unpause();
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
+    function safeMint(address to, string memory uri, Game[] memory _prediction) public onlyOwner {
+        require(mintEnabled,"Minting its not allowed");
+        require(_prediction.length == TOTAL_GAMES, "There should be a prediction for each game");
+        require(msg.value == publicPrice, "Wrong, not exactly amount sent.");
         uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+        for (uint8 index = 0; index < _prediction.length; index++) {
+            predictions[tokenId].push(_prediction[index]);
+        }
+        _tokenIdTracker.increment();
         _setTokenURI(tokenId, uri);
+    }
+
+    function mintPublic(Game[] memory _prediction) public payable {
+        // We cannot just use balanceOf to create the new tokenId because tokens
+        // can be burned (destroyed), so we need a separate counter.
+        require(mintEnabled,"Minting its not allowed");
+        require(_prediction.length == TOTAL_GAMES, "There should be a prediction for each game");
+        require(msg.value == publicPrice, "Wrong, not exactly amount sent.");
+        uint256 tokenId = _tokenIdCounter.current();
+        _safeMint(to, tokenId);
+        for (uint8 index = 0; index < _prediction.length; index++) {
+            predictions[_tokenIdTracker.current()].push(_prediction[index]);
+        }
+        _tokenIdTracker.increment();
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
