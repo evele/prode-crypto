@@ -1,5 +1,9 @@
 export const PRODE_ADDRESS = ""
 
+export const info = {
+  title: "PRODE ARG"
+}
+
 export const teams = {
     1: "Argentina",
     2: "Bolivia",
