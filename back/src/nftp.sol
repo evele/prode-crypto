@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts@4.9.3/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts@4.9.3/token/ERC721/extensions/ERC721Enumerable.sol";
-import "@openzeppelin/contracts@4.9.3/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts@4.9.3/security/Pausable.sol";
-import "@openzeppelin/contracts@4.9.3/access/Ownable.sol";
-import "@openzeppelin/contracts@4.9.3/token/ERC721/extensions/ERC721Burnable.sol";
-import "@openzeppelin/contracts@4.9.3/utils/cryptography/EIP712.sol";
-import "@openzeppelin/contracts@4.9.3/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable, ERC721Burnable, EIP712 {
     using Counters for Counters.Counter;
@@ -55,7 +55,6 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
     function safeMint(address to, string memory uri, Game[] memory _prediction) public onlyOwner {
         require(mintEnabled,"Minting its not allowed");
         require(_prediction.length == TOTAL_GAMES, "There should be a prediction for each game");
-        require(msg.value == publicPrice, "Wrong, not exactly amount sent.");
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(to, tokenId);
         for (uint8 index = 0; index < _prediction.length; index++) {
