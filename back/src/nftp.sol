@@ -28,7 +28,7 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
     uint8 immutable EMPATE = 1;
     uint8 immutable VISITANTE = 2;
 
-    uint256 public publicPrice = 1 ether;
+    uint256 public publicPrice = 1 ether; // TODO: update price... use a stable price
     
     mapping (address => bool) allowList; // TODO: to use it in some promo
 
@@ -40,7 +40,19 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         bool set;
     } 
 
-    mapping(uint8 => Game) public games;  // game_ids -> game
+    mapping(uint8 => Game) public games;  // game_ids -> game .. to register all the results from the oracla, first manually
+
+
+    /* 10 points per team
+       3 fourth -- not for now
+       4 third
+       6 second
+       9 first
+    */
+    uint8[3] public winners; // to set real winners
+
+    mapping(uint256 => uint8[3]) winnersPredictions; // token ID -> array of 4 team ids 
+
 
     mapping(uint256 => Game[]) predictions; // token ID -> prediction (Game[])
 
