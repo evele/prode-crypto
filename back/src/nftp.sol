@@ -44,6 +44,11 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
 
     mapping(uint256 => Game[]) predictions; // token ID -> prediction (Game[])
 
+    uint256[] public positions; // array of token IDs ordered from higher to lower
+
+    uint256 immutable MAX_INT = 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+
+
     function pause() public onlyOwner {
         _pause();
     }
@@ -135,6 +140,24 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         games[_gameId].result[1] = _team2Score;
         games[_gameId].set = true;
         return true;
+    }
+
+    function getPrediction(uint256 _tokenId) public view returns (Game[] memory){
+        return predictions[_tokenId];
+    }
+
+    // predictionIds ordered outside, but checking here if they are correct 
+    function setPositions(uint256[] memory _predictionsIds, uint256[] memory _predictionsPoints) public onlyOwner returns(bool success){
+        require(_predictionsIds.length >0);
+        require(_predictionsIds.length == _predictionsPoints.length);
+
+        uint256 maxPoints = MAX_INT;
+        for (uint256 index = 0; index < _predictionsPoints.length; index++) {
+            require(maxPoints>= _predictionsPoints[index]);
+            positions.push(_predictionsIds[index]);
+            maxPoints = _predictionsPoints[index];
+        } 
+        return true; 
     }
 
 }
