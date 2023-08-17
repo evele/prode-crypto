@@ -160,4 +160,8 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
         return true; 
     }
 
+    function getPositions() public view returns (uint256[] memory){
+        return positions;
+    }
+
 }
