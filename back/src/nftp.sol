@@ -42,6 +42,7 @@ contract NFTPrediction is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, 
 
     mapping(uint8 => Game) public games;  // game_ids -> game
 
+    mapping(uint256 => Game[]) predictions; // token ID -> prediction (Game[])
 
     function pause() public onlyOwner {
         _pause();
